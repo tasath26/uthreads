@@ -1,7 +1,7 @@
 .text
 
-.globl uthread_switch
-.type uthread_switch, @function
+.globl switch_x86_64
+.type switch_x86_64, @function
 
 switch_x86_64:
   movq  %rsp,  0(%rdi)

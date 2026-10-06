@@ -1,23 +1,14 @@
 #include "../common/common.h"
 #include "../common/structures/queue.h"
 #include "../common/structures/table.h"
+#include "../arch/arch.h"
+
 #include "uthreads.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 
-#define UTHREAD_STACK_SIZE (64 * 1024);
-
-typedef struct uctx {
-  uint64_t rsp;
-  uint64_t rbx;
-  uint64_t rbp;
-  uint64_t r12;
-  uint64_t r13;
-  uint64_t r14;
-  uint64_t r15;
-  uint64_t rdi;
-} uctx_t;
+#define UTHREAD_STACK_SIZE (64 * 1024)
 
 typedef struct ustack {
   void *base;
@@ -31,30 +22,38 @@ typedef struct ufunc {
 
 typedef struct uthread {
   unsigned int tid;
-  uctx_t context;
+  uctx_t context;     // Struct content depends on architecture
   ustack_t stack;
   ufunc_t func;
 } uthread_t;
 
 uthread_t *current_thread = NULL;
 
-ut_queue_t *thread_queue = NULL;
+ut_queue_t thread_queue = {0};
 
 void uthread_init(void) {
 
-  uthread_t *main_thread = malloc(sizeof(*main_thread));
+  uthread_t *main_thread = calloc(1,sizeof(*main_thread));
+  if(!main_thread){
+    abort();
+  }
+  
+  if(ut_table_init() == -1){
+    abort();
+  }
 
-  ut_table_init();
-  ut_queue_init(thread_queue);
+  if(ut_queue_init(&thread_queue) == -1){
+    abort();
+  }
 
   int tid = ut_table_alloc(main_thread);
   if (tid != 0) {
-    free(main_thread);
-    return;
+    abort();
   }
 
   main_thread->tid = 0;
-  main_thread->stack.size = UTHREAD_STACK_SIZE;
+  
+  main_thread->stack.size = 0;
   main_thread->stack.base = NULL;
 
   current_thread = main_thread;
@@ -77,16 +76,25 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
 
   new_thread->tid = tid;
 
-  // Function Initializations
-  new_thread->func.start = func;
-  new_thread->func.arg = malloc(nbytes);
-  if (!new_thread->func.arg) {
-    ut_table_release(tid);
-    free(new_thread);
-    return FAILURE;
+  // Function Initializations 
+  if (!func || (nbytes > 0 && !args)) {
+      return FAILURE;
   }
 
-  memcpy(new_thread->func.arg, args, nbytes);
+  new_thread->func.start = func;
+  new_thread->func.arg = NULL;
+
+  if(nbytes > 0){
+    new_thread->func.arg = malloc(nbytes);
+    if (!new_thread->func.arg) {
+      ut_table_release(tid);
+      free(new_thread);
+      return FAILURE;
+    }
+
+    memcpy(new_thread->func.arg, args, nbytes);
+  }
+
 
   // Stack Initialization
   new_thread->stack.size = UTHREAD_STACK_SIZE;
@@ -98,18 +106,8 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
     return FAILURE;
   }
 
-  uintptr_t sp = (uintptr_t)new_thread->stack.base + new_thread->stack.size;
-
-  sp &= ~(uintptr_t)0xF;
-
-  sp -= sizeof(uint64_t);
-  *(uint64_t *)sp = (uint64_t)func;
-
   // Context Initialization
-  new_thread->context = (uctx_t){0};
-
-  new_thread->context.rsp = sp;
-  new_thread->context.rdi = (uint64_t)new_thread->func.arg;
+  arch_context_init(&new_thread->context, new_thread->stack.base, new_thread->stack.size, new_thread->func.start, new_thread->func.arg);
 
   // Thread is in queue - READY STATE
   if (ut_queue_enq(thread_queue, new_thread) != 0) {
