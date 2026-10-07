@@ -58,3 +58,11 @@ uthread_t * ut_table_lookup(int tid){
 
 }
 
+void ut_table_release(int tid)
+{
+    if (tid < 0 || tid >= table_cap) {
+        return;
+    }
+
+    table[tid] = NULL;
+}

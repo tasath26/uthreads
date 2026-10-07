@@ -2,6 +2,8 @@ add_library(uthreads
     impl/threads.c
     impl/sem.c
     impl/chan.c
+    common/structures/queue.c
+    common/structures/table.c
 )
 
 target_include_directories(uthreads

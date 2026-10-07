@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(uthreads C)
+project(uthreads LANGUAGES C ASM)
 
 option(BUILD_TESTS "Build tests" OFF)
 option(DEBUG "Enable debug mode" OFF)

@@ -1,11 +1,12 @@
 .text
-.globl _thread_start
-.type _thread_start, @function
+.globl _uthread_start
+.type _uthread_start, @function
 
-_thrstart:
-    subq $8, %rsp          
-    call *%r12             
+_uthread_start:
+    movq %r13, %rdi
+    call *%r12    
+
     movl %eax, %edi        
-    call Thread_exit
+    call uthread_exit
     ud2                    
 

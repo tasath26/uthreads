@@ -1,9 +1,9 @@
 .text
 
-.globl switch_x86_64
-.type switch_x86_64, @function
+.globl _uthread_switch
+.type _uthread_switch, @function
 
-switch_x86_64:
+_uthread_switch:
   movq  %rsp,  0(%rdi)
   movq  %rbx,  8(%rdi)
   movq  %rbp, 16(%rdi)
