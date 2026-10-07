@@ -56,6 +56,8 @@ int uthread_new(int func(void *), void *args, size_t nbytes);
  * @brief 
  *    Stops execution of current thread until the thread with the given 
  *    tid exits.
+ *    If this is called with 0 as the argument, current thread is blocked 
+ *    until ALL other threads have exited.
  */
 int uthread_join(int tid);
 

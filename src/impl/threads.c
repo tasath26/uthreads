@@ -40,6 +40,9 @@ ut_queue_t thread_queue = {0};
 ut_queue_t blocked_queue = {0};
 ut_queue_t exited_queue = {0};
 
+uint live_threads = 0;
+int  joinall_active = 0; 
+
 static inline void uthread_cleanup(void) {
   while (!ut_queue_empty(&exited_queue)) {
     uthread_t *thread = ut_queue_deq(&exited_queue);
@@ -97,6 +100,8 @@ void uthread_init(void) {
   main_thread->stack.base = NULL;
 
   current_thread = main_thread;
+
+  live_threads++;
 
   return;
 }
@@ -165,13 +170,25 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
     return FAILURE;
   }
 
+  live_threads++;
+
   return tid;
 }
 
 int uthread_join(int tid) {
-  // TO BE IMPLEMENTED
+  
   if (tid == 0) {
-    abort();
+    
+    if(live_threads == 1){
+       return -1;
+    }
+
+    if(joinall_active == 1){
+      return -1;
+    }
+
+     
+
   }
 
   uthread_t *target = ut_table_lookup(tid);
@@ -243,6 +260,8 @@ void uthread_exit(int code) {
       waiting->join.wait_tid = -1;
 
       ut_queue_enq(&thread_queue, waiting);
+      live_threads++;
+
     } else {
       ut_queue_enq(&blocked_queue, waiting);
     }
@@ -261,6 +280,7 @@ void uthread_exit(int code) {
     exit(0);
   }
 
+  live_threads--;
   ut_queue_enq(&exited_queue, from);
 
   uthread_t *to = thread_queue.thread[thread_queue.head];

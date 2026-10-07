@@ -11,5 +11,3 @@ void usem_wait(usem_t *s){
 void usem_signal(usem_t *s){
   return;
 }
-
-
