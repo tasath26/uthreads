@@ -5,6 +5,8 @@
   #include "x86_64/uthread_x86.h"
 #elif defined(RISCV)
   #include "risc-v/uthread_rv64.h"
+#elif defined(ARM64)
+  #include "arm64/uthread_arm64.h"
 #endif
 
 void arch_context_init(
