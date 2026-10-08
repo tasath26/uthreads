@@ -169,30 +169,65 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
   return tid;
 }
 
+static int uthread_check_active_joinall(void){
+  for(size_t i = 0; i < blocked_queue.count; ++i){
+       uthread_t *thread = blocked_queue.thread[i]; 
+      
+      if (thread->join.wait_tid == UTHREADS_JOIN_WAIT_ALL) {
+        return 1;
+      } 
+  }
+
+  return 0;
+}
+
 int uthread_join(int tid) {
 
   if (tid == 0) {
 
     if (UTHREADS_NUM_LIVE == 1) {
-      return -1;
+      return 0;
     }
 
+    
+    if (thread_queue.count <= 1){
+      abort();
+    }
+
+    uthread_t * from = current_thread;
+  
+    // Check if we have another join all active
+    if(uthread_check_active_joinall() == 1){
+      abort();
+    }
+
+    from->join.wait_tid = UTHREADS_JOIN_WAIT_ALL;
 
     ut_queue_deq(&thread_queue);
+    ut_queue_enq(&blocked_queue, from);
+    
+    uthread_t *to = thread_queue.thread[thread_queue.head];
+
+    current_thread = to;
+    _uthread_switch(&from->context, &to->context);
+
+    uthread_cleanup();
+
+    return 0;
   }
 
   uthread_t *target = ut_table_lookup(tid);
   if (target == NULL) {
     return -1;
   }
+ 
+  if (thread_queue.count <= 1){
+    abort();
+  }
 
   uthread_t *from = current_thread;
 
   if (from == target) {
-    abort();
-  }
-
-  if (thread_queue.count <= 1) {
     abort();
   }
 
@@ -240,9 +275,7 @@ void uthread_exit(int code) {
   uthread_t *from = current_thread;
 
   // Add waiting threads back to run queue
-  size_t blocked_cnt = blocked_queue.count;
-
-  for (size_t i = 0; i < blocked_cnt; ++i) {
+  for (size_t i = 0; i < blocked_queue.count; ++i) {
     uthread_t *waiting = ut_queue_deq(&blocked_queue);
 
     if (waiting->join.wait_tid == current_thread->tid) {
@@ -250,6 +283,14 @@ void uthread_exit(int code) {
       waiting->join.wait_tid = -1;
 
       ut_queue_enq(&thread_queue, waiting);
+
+    } else if (waiting->join.wait_tid == UTHREADS_JOIN_WAIT_ALL){
+      waiting->join.res = code; 
+      waiting->join.wait_tid = -1;
+      
+      if(UTHREADS_NUM_LIVE == 1){
+         ut_queue_enq(&thread_queue, waiting);
+      }
 
     } else {
       ut_queue_enq(&blocked_queue, waiting);
