@@ -7,10 +7,9 @@ static int worker(void *arg)
 
     printf("Hello from thread %d\n", uthread_self());
 
-    for (;;) {
-        uthread_pause();
+    for(size_t i = 0; i < 100000; i = i + 2){
+      i--;
     }
-
     return 0;
 }
 
@@ -27,7 +26,7 @@ int main(void)
 
     printf("Hello from main, thread %d\n", uthread_self());
 
-    uthread_pause();
+    uthread_join(0);
 
     puts("Main resumed after all workers greeted.");
     return 0;

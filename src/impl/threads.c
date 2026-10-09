@@ -2,6 +2,7 @@
 #include "../common/common.h"
 #include "../common/structures/queue.h"
 #include "../common/structures/table.h"
+#include "../sig/handler.h"
 
 #include "uthreads.h"
 
@@ -10,6 +11,14 @@
 #include <stdlib.h>
 
 #define UTHREAD_STACK_SIZE (64 * 1024)
+
+#define ENTER_CRITICAL(saved) \
+    sigset_t saved;           \
+    sig_disable(&(saved))
+
+#define EXIT_CRITICAL(saved) \
+    sig_restore(&(saved))
+
 
 typedef struct ustack {
   void *base;
@@ -100,6 +109,9 @@ void uthread_init(void) {
 
   current_thread = main_thread;
 
+  sig_init();
+  sig_start();
+
   return;
 }
 
@@ -110,13 +122,17 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
     return FAILURE;
   }
 
+  ENTER_CRITICAL(previous);
+
   uthread_t *new_thread = malloc(sizeof(*new_thread));
   if (!new_thread) {
+    EXIT_CRITICAL(previous);
     return FAILURE;
   }
 
   int tid = ut_table_alloc(new_thread);
   if (tid == -1) {
+    EXIT_CRITICAL(previous);
     free(new_thread);
     return FAILURE;
   }
@@ -130,6 +146,7 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
   if (nbytes > 0) {
     new_thread->func.arg = malloc(nbytes);
     if (!new_thread->func.arg) {
+      EXIT_CRITICAL(previous);
       ut_table_release(tid);
       free(new_thread);
       return FAILURE;
@@ -142,6 +159,7 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
   new_thread->stack.size = UTHREAD_STACK_SIZE;
   new_thread->stack.base = malloc(new_thread->stack.size);
   if (!new_thread->stack.base) {
+    EXIT_CRITICAL(previous);
     free(new_thread->func.arg);
     ut_table_release(tid);
     free(new_thread);
@@ -159,12 +177,15 @@ int uthread_new(int func(void *), void *args, size_t nbytes) {
 
   // Thread is in queue - READY STATE
   if (ut_queue_enq(&thread_queue, new_thread) != 0) {
+    EXIT_CRITICAL(previous);
     free(new_thread->stack.base);
     free(new_thread->func.arg);
     ut_table_release(tid);
     free(new_thread);
     return FAILURE;
   }
+
+  EXIT_CRITICAL(previous);
 
   return tid;
 }
@@ -193,9 +214,12 @@ void uthread_switch(void){
 
 int uthread_join(int tid) {
 
+  ENTER_CRITICAL(previous);
+
   if (tid == 0) {
 
     if (UTHREADS_NUM_LIVE == 1) {
+      EXIT_CRITICAL(previous);
       return 0;
     }
 
@@ -219,11 +243,14 @@ int uthread_join(int tid) {
 
     uthread_switch();
 
+    EXIT_CRITICAL(previous);
+
     return 0;
   }
 
   uthread_t *target = ut_table_lookup(tid);
   if (target == NULL) {
+    EXIT_CRITICAL(previous);
     return -1;
   }
 
@@ -247,6 +274,9 @@ int uthread_join(int tid) {
   uthread_switch();
 
   return from->join.res;
+
+  EXIT_CRITICAL(previous);
+
 }
 
 int uthread_self(void) { return current_thread->tid; }
@@ -257,6 +287,8 @@ void uthread_pause(void) {
     return;
   }
 
+  ENTER_CRITICAL(previous);
+
   uthread_t *from = ut_queue_deq(&thread_queue);
 
   if (ut_queue_enq(&thread_queue, from) == -1) {
@@ -264,9 +296,14 @@ void uthread_pause(void) {
   }
 
   uthread_switch();
+
+  EXIT_CRITICAL(previous);
 }
 
 void uthread_exit(int code) {
+  
+  ENTER_CRITICAL(previous);
+
   uthread_cleanup();
 
   uthread_t *from = current_thread;
