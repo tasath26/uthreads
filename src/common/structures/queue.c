@@ -84,3 +84,8 @@ int ut_queue_empty(const ut_queue_t *q)
 {
     return q->count == 0;
 }
+
+uthread_t *ut_queue_peek(ut_queue_t *q)
+{
+  return q->thread[q->head];
+}

@@ -21,5 +21,7 @@ uthread_t *ut_queue_deq(ut_queue_t *q);
 void ut_queue_destroy(ut_queue_t *q);
 
 int ut_queue_empty(const ut_queue_t *q);
+
+uthread_t *ut_queue_peek(ut_queue_t *q);
   
 #endif 

@@ -181,6 +181,16 @@ static int uthread_check_active_joinall(void) {
   return 0;
 }
 
+void uthread_switch(void){
+  uthread_t *from = current_thread;
+  uthread_t *to   = ut_queue_peek(&thread_queue);
+
+  current_thread = to;
+  _uthread_switch(&from->context, &to->context);
+
+  uthread_cleanup();
+}
+
 int uthread_join(int tid) {
 
   if (tid == 0) {
@@ -200,17 +210,14 @@ int uthread_join(int tid) {
       abort();
     }
 
+    if(ut_queue_enq(&blocked_queue, from) == -1){
+      abort();
+    }
+
     from->join.wait_tid = UTHREADS_JOIN_WAIT_ALL;
-
     ut_queue_deq(&thread_queue);
-    ut_queue_enq(&blocked_queue, from);
 
-    uthread_t *to = thread_queue.thread[thread_queue.head];
-
-    current_thread = to;
-    _uthread_switch(&from->context, &to->context);
-
-    uthread_cleanup();
+    uthread_switch();
 
     return 0;
   }
@@ -237,12 +244,8 @@ int uthread_join(int tid) {
   from->join.wait_tid = tid;
   ut_queue_deq(&thread_queue);
 
-  uthread_t *to = thread_queue.thread[thread_queue.head];
+  uthread_switch();
 
-  current_thread = to;
-  _uthread_switch(&from->context, &to->context);
-
-  uthread_cleanup();
   return from->join.res;
 }
 
@@ -255,16 +258,12 @@ void uthread_pause(void) {
   }
 
   uthread_t *from = ut_queue_deq(&thread_queue);
-  uthread_t *to = thread_queue.thread[thread_queue.head];
 
   if (ut_queue_enq(&thread_queue, from) == -1) {
     abort();
   }
 
-  current_thread = to;
-  _uthread_switch(&from->context, &to->context);
-
-  uthread_cleanup();
+  uthread_switch();
 }
 
 void uthread_exit(int code) {
@@ -316,10 +315,7 @@ void uthread_exit(int code) {
     abort();
   }
 
-  uthread_t *to = thread_queue.thread[thread_queue.head];
-
-  current_thread = to;
-  _uthread_switch(&from->context, &to->context);
+  uthread_switch();
 
   abort(); 
 }
