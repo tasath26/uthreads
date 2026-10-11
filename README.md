@@ -3,6 +3,46 @@
 A User-Level threads library, including semaphore and channel implementations.
 For CS-527 Parallel Computer Architecture, CSD-UoC.
 
+## Structure 
+
+```text
+.
+├── api                          # Public API 
+│   ├── uchan.h
+│   ├── usem.h
+│   └── uthreads.h
+├── CMakeLists.txt
+├── README.md
+├── src
+│   ├── arch
+│   │   ├── arch.h
+│   │   └── <architecture>
+│   │       ├── context.c        # Arch-specific context init  
+│   │       ├── start.s          # Thread entry assembly code  
+│   │       ├── switch.s         # Switch assembly code 
+│   │       └── uthread_<arch>.h # Context structs
+│   ├── CMakeLists.txt
+│   ├── common
+│   │   ├── common.h
+│   │   └── structures           # Data Structures 
+│   │       ├── queue.c          
+│   │       ├── queue.h
+│   │       ├── table.c
+│   │       └── table.h
+│   ├── impl                     # API Implementations 
+│   │   ├── chan.c
+│   │   ├── sem.c
+│   │   └── threads.c
+│   └── sig                      # Pre-emption 
+│       ├── handler.c
+│       └── handler.h
+└── tests
+    ├── CMakeLists.txt
+    ├── hello.c
+    └── stress_test.c
+```
+
+
 ## Library  
 
 ### uthreads.h 
@@ -59,3 +99,16 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
  - **mips**
  - **sparc** 
  - **powerpc**
+
+
+## Testing 
+
+
+```bash
+
+
+```
+
+___ 
+
+Athanasiadis Anastasios - csdp1440 - 2026
