@@ -3,10 +3,10 @@
 .globl __uthread_start
 
 __uthread_start:
+    bl  _sig_enable
     mov x0, x20          // First argument: arg
     blr x19              // Call func(arg)
 
-    // The returned int is already in w0.
     bl _uthread_exit     // C function: uthread_exit(code)
 
 Lunexpected_return:
