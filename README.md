@@ -9,27 +9,28 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 | Call | Description   |  
 | :--- | :--- |
-| uthread_init | |
-| uthread_new | |
-| uthread_self ||
-| uthread_pause ||
-| uthread_join  | |
-| uthread_exit||
+| uthread_init | Initialized thread library |
+| uthread_new | Creates thread and returns the TID |
+| uthread_self | Returns the current thread's TID |
+| uthread_pause | Yields execution to another thread |
+| uthread_join  | Waits for a thread to finish |
+| uthread_exit| Terminates calling thread |
 
 ### usem.h 
 
 | Call | Description   |  
 | :--- | :--- |
-| usem_init||
-| usem_wait ||
-| usem_signal ||
+| usem_init | Initializes the semaphore object |
+| usem_wait | Aquires semaphore, blocks if needed |
+| usem_signal | Releases semaphore |
 
 ### uchan.h 
 
 | Call | Description |
-| uchan_init | |
-| uchan_send | |
-| uchan_recv | |
+| :--- | :--- |
+| uchan_init | Initializes the channel object |
+| uchan_send | Sends data through the channel |
+| uchan_recv | Recieves data from the channel |
 
 ## Usage
 
@@ -50,13 +51,11 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ### Supported Architectures
 
- - x86_64
- - x86_i386
- - arm64
- - arm32
- - risc-v 
- - mips
- - sparc 
- - powerpc
-
-
+ - **x86_64**
+ - **x86_i386**
+ - **arm64**
+ - **arm32**
+ - **risc-v** 
+ - **mips**
+ - **sparc** 
+ - **powerpc**
