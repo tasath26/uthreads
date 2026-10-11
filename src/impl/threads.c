@@ -12,14 +12,6 @@
 
 #define UTHREAD_STACK_SIZE (64 * 1024)
 
-#define ENTER_CRITICAL(saved) \
-    sigset_t saved;           \
-    sig_disable(&(saved))
-
-#define EXIT_CRITICAL(saved) \
-    sig_restore(&(saved))
-
-
 typedef struct ustack {
   void *base;
   size_t size;

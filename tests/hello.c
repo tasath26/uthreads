@@ -1,21 +1,29 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "uthreads.h"
+#include "usem.h"
 
-static int worker(void *arg)
-{
-    (void)arg;
+usem_t sem;
 
-    printf("Hello from thread %d\n", uthread_self());
+int worker(void* arg){
 
-    for(size_t i = 0; i < 100000; i = i + 2){
-      i--;
-    }
-    return 0;
+
+  usem_wait(&sem);
+
+  printf("Hello from thread %d\n", uthread_self());
+
+  for(;;){}
+
+  usem_signal(&sem);
+
+  return 0;
 }
 
 int main(void)
 {
     uthread_init();
+
+    usem_init(&sem, 3);
 
     for (int i = 0; i < 1000; ++i) {
         if (uthread_new(worker, NULL, 0) == -1) {

@@ -12,4 +12,12 @@ void sig_restore(const sigset_t *prev);
 
 void sig_enable(void);
 
+#define ENTER_CRITICAL(saved) \
+    sigset_t saved;           \
+    sig_disable(&(saved))
+
+#define EXIT_CRITICAL(saved) \
+    sig_restore(&(saved))
+
+
 #endif // !HANDLER_H

@@ -5,10 +5,10 @@
 #include "usem.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 void usem_init(usem_t *s, long count){
 
-  assert(s != NULL);
   ut_queue_t *new_queue = malloc(sizeof(*new_queue));
   if(!new_queue)
     abort();
