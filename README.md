@@ -1,13 +1,13 @@
 # uthreads
 
-A User-Level threads library, including semaphore and channel implementations.
+A User-Level Preemptive threads library, including semaphore and channel implementations.
 For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ## Structure 
 
 ```text
 .
-├── api                          # Public API 
+├── api                             # Public API 
 │   ├── uchan.h
 │   ├── usem.h
 │   └── uthreads.h
@@ -17,23 +17,23 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 │   ├── arch
 │   │   ├── arch.h
 │   │   └── <architecture>
-│   │       ├── context.c        # Arch-specific context init  
-│   │       ├── start.s          # Thread entry assembly code  
-│   │       ├── switch.s         # Switch assembly code 
-│   │       └── uthread_<arch>.h # Context structs
+│   │       ├── context.c           # Arch-specific context init  
+│   │       ├── start.s             # Thread entry assembly code  
+│   │       ├── switch.s            # Switch assembly code 
+│   │       └── uthread_<arch>.h    # Context structs
 │   ├── CMakeLists.txt
 │   ├── common
-│   │   ├── common.h
-│   │   └── structures           # Data Structures 
+│   │   ├── common.h            
+│   │   └── structures              # Data Structures 
 │   │       ├── queue.c          
 │   │       ├── queue.h
 │   │       ├── table.c
 │   │       └── table.h
-│   ├── impl                     # API Implementations 
+│   ├── impl                        # API Implementations 
 │   │   ├── chan.c
 │   │   ├── sem.c
 │   │   └── threads.c
-│   └── sig                      # Pre-emption 
+│   └── sig                         # Signal Handling for Preemption 
 │       ├── handler.c
 │       └── handler.h
 └── tests
@@ -76,14 +76,15 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ```bash
     mkdir build; cd build 
-    cmake ..
+    cmake <options> ..
     make
 ```
 
 ### CMake Options
 
 ```bash
-    -DARCH=<architecture>   # Default = "x86_64"
+    -DARCH=<architecture>                # Default = "x86_64"
+    -UTHREAD_STACK_SIZE=< size in KB >   # Default = 64
     -DBUILD_TESTS=<ON/OFF>
     -DDEBUG=<ON/OFF> 
 
