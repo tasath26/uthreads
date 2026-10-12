@@ -1,7 +1,7 @@
 # uthreads
 
 A User-Level Preemptive threads library, including semaphore and channel implementations.
-For CS-527 Parallel Computer Architecture, CSD-UoC.
+Supporting multiple CPU architectures. For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ## Structure 
 
@@ -125,7 +125,5 @@ i/o or memory management like malloc, so that threads cannot switch until those 
 operations have finished.
 
 ___ 
-
-This assignment took 4-5 days to complete.
 
 Athanasiadis Anastasios - csdp1440 - 2026
