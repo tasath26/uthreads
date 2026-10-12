@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "../sig/handler.h"
 
 extern void *__real_malloc(size_t size);

@@ -1,0 +1,8 @@
+libdir=@CMAKE_CURRENT_BINARY_DIR@/src
+includedir=@CMAKE_CURRENT_SOURCE_DIR@/api
+
+Name: uthreads
+Description: User-level threading library
+Version: 0.1.0
+Libs: -L${libdir} -luthreads @UTHREADS_WRAP_FLAGS@
+Cflags: -I${includedir}

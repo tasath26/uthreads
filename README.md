@@ -45,7 +45,7 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ## Library  
 
-### uthreads.h 
+### Threads - uthreads.h 
 
 | Call | Description   |  
 | :--- | :--- |
@@ -56,7 +56,7 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 | uthread_join  | Waits for a thread to finish |
 | uthread_exit| Terminates calling thread |
 
-### usem.h 
+### Semaphores - usem.h 
 
 | Call | Description   |  
 | :--- | :--- |
@@ -64,7 +64,7 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 | usem_wait | Aquires semaphore, blocks if needed |
 | usem_signal | Releases semaphore |
 
-### uchan.h 
+### Channels - uchan.h 
 
 | Call | Description |
 | :--- | :--- |
@@ -78,13 +78,18 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
     mkdir build; cd build 
     cmake <options> ..
     make
+    
+    export PKG_CONFIG_PATH="$PWD${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    gcc program -o main $(pkg-config --cflags --libs uthreads)
+
 ```
 
 ### CMake Options
 
 ```bash
-    -DARCH=<architecture>                # Default = "x86_64"
-    -UTHREAD_STACK_SIZE=< size in KB >   # Default = 64
+    -DARCH=<architecture>                           # Default = "x86_64"
+    -UTHREAD_STACK_SIZE=< size in KB >              # Default = 64 | Max = 8192 (8MB)
+    -DUTHREAD_PRMT_INTERVAL_US=<time in microsec.>  # Default = 10000
     -DBUILD_TESTS=<ON/OFF>
     -DDEBUG=<ON/OFF> 
 
@@ -92,15 +97,16 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ### Supported Architectures
 
- - **x86_64**
- - **x86_i386**
- - **arm64**
- - **arm32**
- - **risc-v** 
+```text
+ - **x86_64**      #Tested natively  
+ - **x86_i386**    #Tested natively
+ - **arm64**       #Tested natively on macOS
+ - **arm32**       
+ - **risc-v**      #Tested with QEMU
  - **mips**
  - **sparc** 
  - **powerpc**
-
+```
 
 ## Testing 
 
@@ -109,6 +115,9 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 
 ```
+
+# Preemption
+
 
 ___ 
 

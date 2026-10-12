@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 #define PREEMPT_SIGNAL SIGVTALRM
-#define PREEMPT_INTERVAL_US 10000
+#define UTHREAD_PRMT_INTERVAL_US 10000
 
 static volatile sig_atomic_t tick = 0;
 static sigset_t preempt_set;
@@ -66,11 +66,11 @@ void sig_start(void)
     struct itimerval timer = {
         .it_interval = {
             .tv_sec = 0,
-            .tv_usec = PREEMPT_INTERVAL_US
+            .tv_usec = UTHREAD_PRMT_INTERVAL_US
         },
         .it_value = {
             .tv_sec = 0,
-            .tv_usec = PREEMPT_INTERVAL_US
+            .tv_usec = UTHREAD_PRMT_INTERVAL_US 
         }
     };
 

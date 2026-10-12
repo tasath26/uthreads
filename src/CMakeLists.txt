@@ -1,4 +1,4 @@
-add_library(uthreads
+add_library(uthreads STATIC
     impl/threads.c
     impl/sem.c
     impl/chan.c
@@ -16,26 +16,34 @@ target_include_directories(uthreads
 
 set(ARCH "x86_64" CACHE STRING "Target Architecture")
 
-if(ARCH STREQUAL "x86_64")
-  target_compile_definitions(uthreads PRIVATE X86_64)
+set(SUPPORTED_ARCHS
+    x86_64
+    x86_i386
+    arm64
+    arm32
+    riscv
+    mips
+    sparc 
+    powerpc
+)
 
-  target_sources(uthreads PRIVATE 
-      arch/x86_64/context.c
-      arch/x86_64/switch.s
-      arch/x86_64/start.s
-  )
-
-elseif(ARCH STREQUAL "arm64")
-
-  target_compile_definitions(uthreads PRIVATE ARM64)
-
-  target_sources(uthreads PRIVATE 
-      arch/arm64/context.c
-      arch/arm64/switch.s
-      arch/arm64/start.s
-  )
-
-
-else()
-  message(FATAL_ERROR "Unsupported Architecture: " ${ARCH})
+if(NOT ARCH IN_LIST SUPPORTED_ARCHS)
+    message(FATAL_ERROR "Unsupported architecture: ${ARCH}")
 endif()
+
+string(TOUPPER "${ARCH}" ARCH_DEFINE)
+
+target_compile_definitions(uthreads PRIVATE ${ARCH_DEFINE})
+
+target_sources(uthreads PRIVATE
+    arch/${ARCH}/context.c
+    arch/${ARCH}/switch.s
+    arch/${ARCH}/start.s
+)
+
+target_sources(uthreads PRIVATE
+    wrap/alloc.c
+    wrap/stdio.c
+    wrap/io.c
+)
+
