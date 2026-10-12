@@ -107,7 +107,7 @@ void uthread_init(void) {
   return;
 }
 
-int uthread_new(int func(void *), void *args, size_t nbytes) {
+int uthread_new(int func(void *), void *args, size_t nbytes, ...) {
 
   // Validate arguments
   if (!func || (nbytes > 0 && !args)) {

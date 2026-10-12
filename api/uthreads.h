@@ -42,7 +42,7 @@ void uthread_init(void);
  *    The new thread begins execution by calling func with a private copy
  *    of the nbytes bytes pointed to by args.
  */
-int uthread_new(int func(void *), void *args, size_t nbytes);
+int uthread_new(int func(void *), void *args, size_t nbytes, ...);
 
 /**
  * @func

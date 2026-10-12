@@ -1,8 +1,16 @@
-add_executable(test_hello hello.c)
-add_executable(stress_test stress_test.c)
+include(CTest)
 
-target_link_libraries(test_hello PRIVATE uthreads)
-target_link_libraries(stress_test PRIVATE uthreads)
+file(GLOB TEST_SOURCES "*.c")
 
-add_test(NAME hello COMMAND test_hello)
-add_test(NAME stress_test COMMAND stress_test)
+foreach(source IN LISTS TEST_SOURCES)
+    get_filename_component(test_name ${source} NAME_WE)
+
+    add_executable(${test_name} ${source})
+    target_link_libraries(${test_name} PRIVATE uthreads)
+
+    add_test(NAME ${test_name} COMMAND ${test_name})
+
+    set_tests_properties(${test_name} PROPERTIES
+        TIMEOUT 30
+    )
+endforeach()

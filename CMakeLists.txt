@@ -17,6 +17,35 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
+set(UTHREAD_STACK_SIZE 64 CACHE STRING "Thread stack size in KB")
+set(UTHREAD_PRMT_INTERVAL_US 10000 CACHE STRING "Preemption interval in microseconds")
+
+# Validate stack size
+if(NOT UTHREAD_STACK_SIZE MATCHES "^[0-9]+$")
+    message(FATAL_ERROR "UTHREAD_STACK_SIZE must be a positive integer")
+endif()
+
+if(UTHREAD_STACK_SIZE LESS 1 OR UTHREAD_STACK_SIZE GREATER 8192)
+    message(FATAL_ERROR
+        "UTHREAD_STACK_SIZE must be between 1 and 8192 KB"
+    )
+endif()
+
+# Validate preemption interval
+if(NOT UTHREAD_PRMT_INTERVAL_US MATCHES "^[0-9]+$")
+    message(FATAL_ERROR "UTHREAD_PRMT_INTERVAL_US must be a positive integer")
+endif()
+
+if(UTHREAD_PRMT_INTERVAL_US LESS 1)
+    message(FATAL_ERROR "UTHREAD_PRMT_INTERVAL_US must be greater than 0")
+endif()
+
+# Pass definitions to the compiler
+target_compile_definitions(uthreads PRIVATE
+    UTHREAD_STACK_SIZE=${UTHREAD_STACK_SIZE}
+    UTHREAD_PRMT_INTERVAL_US=${UTHREAD_PRMT_INTERVAL_US}
+)
+
 
 set(UTHREADS_WRAPPED_FUNCTIONS
     malloc calloc realloc free

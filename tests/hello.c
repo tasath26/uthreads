@@ -1,20 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "uthreads.h"
-#include "usem.h"
 
-usem_t sem;
 
 int worker(void* arg){
 
 
-  usem_wait(&sem);
 
   printf("Hello from thread %d\n", uthread_self());
-
-  for(;;){}
-
-  usem_signal(&sem);
 
   return 0;
 }
@@ -23,7 +16,6 @@ int main(void)
 {
     uthread_init();
 
-    usem_init(&sem, 3);
 
     for (int i = 0; i < 1000; ++i) {
         if (uthread_new(worker, NULL, 0) == -1) {

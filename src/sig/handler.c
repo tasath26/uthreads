@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 #define PREEMPT_SIGNAL SIGVTALRM
-#define UTHREAD_PRMT_INTERVAL_US 10000
+#define UTHREAD_PRMT_INTERVAL_US 5000
 
 static volatile sig_atomic_t tick = 0;
 static sigset_t preempt_set;

@@ -1,6 +1,5 @@
 #include "uthread_arm64.h"
 
-extern void _uthread_start(void);
 
 void arch_context_init(
     uctx_t *ctx,

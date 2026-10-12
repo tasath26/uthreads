@@ -33,13 +33,13 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 │   │   ├── chan.c
 │   │   ├── sem.c
 │   │   └── threads.c
+│   ├── wrap                        # Wrapper functions for preemption
 │   └── sig                         # Signal Handling for Preemption 
 │       ├── handler.c
 │       └── handler.h
-└── tests
-    ├── CMakeLists.txt
-    ├── hello.c
-    └── stress_test.c
+│       
+│       
+└── tests                           # Testfiles (ctest)
 ```
 
 
@@ -89,7 +89,7 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 ```bash
     -DARCH=<architecture>                           # Default = "x86_64"
     -UTHREAD_STACK_SIZE=< size in KB >              # Default = 64 | Max = 8192 (8MB)
-    -DUTHREAD_PRMT_INTERVAL_US=<time in microsec.>  # Default = 10000
+    -DUTHREAD_PRMT_INTERVAL_US=<time in microsec.>  # Default = 5000 (5ms)
     -DBUILD_TESTS=<ON/OFF>
     -DDEBUG=<ON/OFF> 
 
@@ -97,27 +97,32 @@ For CS-527 Parallel Computer Architecture, CSD-UoC.
 
 ### Supported Architectures
 
-```text
+
  - **x86_64**      #Tested natively  
  - **x86_i386**    #Tested natively
  - **arm64**       #Tested natively on macOS
- - **arm32**       
- - **risc-v**      #Tested with QEMU
- - **mips**
- - **sparc** 
- - **powerpc**
-```
+ - **arm32**       #Not Tested 
+ - **risc-v**      #Tested using QEMU
 
 ## Testing 
 
+Run the given examples and more custom tests:
 
 ```bash
-
+    cd build/tests 
+    ctest
 
 ```
 
-# Preemption
+# Preemption 
 
+Preemption works using a signal handler that starts a timer and switches context every interval using a round-robin policy.
+We have some regions that are protected (such as the creation of a thread or exiting) that we don't 
+allow switches to occur. 
+
+Also i added wrapper functions for the most common arbitrary calls that a user might do such as 
+i/o or memory management like malloc, so that threads cannot switch until those important
+operations have finished.
 
 ___ 
 
