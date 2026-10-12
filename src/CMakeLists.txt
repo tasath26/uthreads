@@ -22,9 +22,6 @@ set(SUPPORTED_ARCHS
     arm64
     arm32
     riscv
-    mips
-    sparc 
-    powerpc
 )
 
 if(NOT ARCH IN_LIST SUPPORTED_ARCHS)
